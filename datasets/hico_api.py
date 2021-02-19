@@ -180,7 +180,7 @@ class Hico(BaseDataset):
     """
 
     def load_image_ids(self, split):
-        path = osp.join(self.data_dir, 'annotations_json', '%s.ids')
+        path = osp.join(self.data_dir, 'annotations_json', '%s.ids') ##image path!!!!!!
         if split=='debug':
             image_ids = np.loadtxt(open(path%'trainval','r'))
             image_ids = image_ids[0:10]
@@ -578,9 +578,9 @@ class Hico(BaseDataset):
         for k in range(len(actions)):
             relation     = actions[k]
             predicate    = relation['vname']
-            predicate    = ' '.join(predicate.split('_'))
+            predicate    = ' '.join(predicate.split('_')) #找到动词
             objname      = relation['nname']
-            objname      = ' '.join(objname.split('_'))
+            objname      = ' '.join(objname.split('_'))   #找到宾语
             visualphrase = '-'.join(['person', predicate, objname])
             relations.add_word(visualphrase, 'noun-verb-noun')
 
@@ -592,10 +592,10 @@ class Hico(BaseDataset):
         no_interaction class already included
         """
         predicates = Vocabulary()
-        predicates.add_word('no interaction', 'verb')
+        predicates.add_word('no interaction', 'verb') #default case
         for visualphrase in visualphrases.words():
             triplet = visualphrase.split('-')
-            predicate = triplet[1]
+            predicate = triplet[1]                    #第二是动词
             if predicate not in predicates.words():
                 predicates.add_word(predicate, 'verb')
 
@@ -635,7 +635,7 @@ class Hico(BaseDataset):
             if j%1000==0:
                 print('Preparing entry (load image size) : {}/{}'.format(j,len(self.image_ids)))
             im_id = self.image_ids[j]
-            db[im_id] = {}
+            db[im_id] = {}  #填入meta信息
             self._prep_db_entry(db[im_id])
 
             # At least fill up image_filename, width, height. Might not be annotations.
@@ -729,16 +729,16 @@ class Hico(BaseDataset):
 
     def _init_coco(self):
         category_ids = self.COCO.getCatIds()
-        categories = [c['name'] for c in self.COCO.loadCats(category_ids)]
+        categories = [c['name'] for c in self.COCO.loadCats(category_ids)]#get COCO categories
         self.category_to_id_map = dict(zip(categories, category_ids))
         # Vocabulary of objects
-        self.classes = Vocabulary()
+        self.classes = Vocabulary() #包含了一些数据结构，相当于一个数据库吧， idx to vocab, vocab to idx
         self.classes.add_word('background', 'noun')
         for cat in categories:
-            self.classes.add_word(cat, 'noun')
+            self.classes.add_word(cat, 'noun') #当前目录类别都为名词
         self.num_classes = len(self.classes)
         self.json_category_id_to_contiguous_id = {
-            v: i + 1 for i, v in enumerate(self.COCO.getCatIds())}
+            v: i + 1 for i, v in enumerate(self.COCO.getCatIds())} #改为连续数据encoding
         self.contiguous_category_id_to_json_id = {
             v: k for k, v in self.json_category_id_to_contiguous_id.items()}
 
