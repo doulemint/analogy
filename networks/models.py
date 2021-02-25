@@ -24,18 +24,18 @@ class NetIndepClassif(Net):
         # Compute gram_id to have module <-> gram correspondencies
         self.gram_id = {}
         count = 0
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 self.gram_id[gram] = count
                 count +=1 
 
         # In classification set-up: only defined visual nets
         self.visual_nets = nn.ModuleList()
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
 
                 vis_layer = nn.Sequential(self.get_module_vis(self.modules_name[gram], normalize=False),\
-                                        nn.Linear(self.embed_size, len(self.vocab[gram])))
+                              nn.Linear(self.embed_size, len(self.vocab[gram])))
                 self.visual_nets.append(vis_layer)
 
 
@@ -47,7 +47,7 @@ class NetIndepClassif(Net):
 
 
         # Define parameters and optimizer
-        self.params = filter(lambda p: p.requires_grad, self.parameters()) 
+        self.params = list(filter(lambda p: p.requires_grad, self.parameters())) 
 
         if self.optim_name == 'adam':
             self.optimizer = optim.Adam(self.params, lr=self.learning_rate, weight_decay=self.weight_decay)
@@ -93,7 +93,7 @@ class NetIndepClassif(Net):
 
         scores_grams,_ = self(batch_input)
 
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 if self.criterions[gram]:
 
@@ -104,7 +104,7 @@ class NetIndepClassif(Net):
                     tp_all[gram], fp_all[gram], num_pos_all[gram] = self.get_statistics(activations, labels)
 
         loss = 0
-        for _,val in loss_all.iteritems():
+        for _,val in loss_all.items():
             loss += val
 
         loss.backward()
@@ -122,7 +122,7 @@ class NetIndepClassif(Net):
 
         scores_grams,_ = self(batch_input)
 
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 if self.criterions[gram]:
 
@@ -145,7 +145,7 @@ class NetIndepEmb(Net):
         # Compute gram_id to have module <-> gram correspondencies
         self.gram_id = {}
         count = 0
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 self.gram_id[gram] = count
                 count +=1 
@@ -155,7 +155,7 @@ class NetIndepEmb(Net):
         ######################
 
         self.visual_nets = nn.ModuleList()
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 vis_layer = self.get_module_vis(self.modules_name[gram], normalize=self.normalize_vis)
                 self.visual_nets.append(vis_layer)
@@ -165,7 +165,7 @@ class NetIndepEmb(Net):
         ########################
 
         self.language_nets = nn.ModuleList()
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 lang_layer = self.get_module_language(  self.net_language_name, \
                                                         num_words=self.num_words[gram], \
@@ -179,7 +179,7 @@ class NetIndepEmb(Net):
         #################
 
         self.criterions = {}
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 if self.criterion_name=='bidirectional_ranking':
                     self.criterions[gram] = RankingCriterionBidir(margin=self.margin)
@@ -213,7 +213,7 @@ class NetIndepEmb(Net):
                 param.requires_grad = False
 
 
-        self.params = filter(lambda p: p.requires_grad, self.parameters())
+        self.params = list(filter(lambda p: p.requires_grad, self.parameters()))
 
         print('Freezing {} parameters out of {}'.format(num_parameters-len(list(self.params)), num_parameters))
 
@@ -237,7 +237,7 @@ class NetIndepEmb(Net):
 
         # Gram branches w/o analogy
         scores, labels = self(batch_input)
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 if self.criterions[gram]:
 
@@ -301,7 +301,7 @@ class NetIndepEmb(Net):
             loss = loss_all['sro'] + self.lambda_reg*loss_all['reg']
         else:
             loss = 0
-            for _, val in loss_all.iteritems():
+            for _, val in loss_all.items():
                 loss += val
 
         # Gradient step
@@ -329,7 +329,7 @@ class NetIndepEmb(Net):
 
         # Gram w/o analogy
         scores, labels = self(batch_input)
-        for gram, is_active in self.activated_grams.iteritems():
+        for gram, is_active in self.activated_grams.items():
             if is_active:
                 if self.criterions[gram]:
 

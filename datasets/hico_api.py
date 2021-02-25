@@ -8,7 +8,7 @@ from pycocotools.coco import COCO
 from scipy.sparse import lil_matrix
 import numbers
 import csv
-import cPickle as pickle
+import pickle
 from datasets.utils import multilabel_transform, get_overlap, filter_small_boxes, Vocabulary
 from datasets.Dataset import BaseDataset
 
@@ -76,7 +76,8 @@ class Hico(BaseDataset):
         else:
 
             if osp.exists(osp.join(self.data_dir, 'db_' + self.split + '.pkl')):
-                self.db = pickle.load(open(osp.join(self.data_dir, 'db_' + self.split + '.pkl'),'rb')) 
+                with(open(osp.join(self.data_dir, 'db_' + self.split + '.pkl'),'rb')) as f: 
+                  self.db = pickle.load(f,encoding="bytes") 
             else:
                 # Load the annotations
                 if split in ['debug', 'train', 'val', 'trainval'] or split in self.train_split_zeroshot:
@@ -125,7 +126,7 @@ class Hico(BaseDataset):
 
         # Vocab wrapper (use POS tag as can have homonyms verb/noun)
         self.vocab = self.build_vocab(self.classes, self.predicates)
-        pickle.dump(self.vocab.idx2word.values(), open(osp.join(self.data_dir, 'vocab' + '.pkl'), 'wb')) 
+        #pickle.dump(self.vocab.idx2word.values(), open(osp.join(self.data_dir, 'vocab' + '.pkl'), 'wb')) 
 
 
         self.vocab_grams = {'s':self.classes,
@@ -143,7 +144,9 @@ class Hico(BaseDataset):
         self.idx_to_vocab = self.get_idx_in_vocab(self.vocab_grams, self.vocab_grams['all']) # get idx of vocab_grams in vocab_all (to access pre-computed word embeddings)
 
         # Pre-trained word embeddings for subject/object/verb
-        self.word_embeddings = pickle.load(open(osp.join(self.data_dir, 'pretrained_embeddings_w2v.pkl'), 'rb'))
+        with open(osp.join(self.data_dir, 'pretrained_embeddings_w2v.pkl'),'rb') as f:
+          self.word_embeddings = pickle.load(f, encoding="bytes")
+        #self.word_embeddings = pickle.load(open(osp.join(self.data_dir, 'pretrained_embeddings_w2v.pkl'), 'rb'))
 
 
         if self.l2norm_input:
@@ -287,7 +290,7 @@ class Hico(BaseDataset):
         filepath = filepath%'trainval' if (self.split in ['debug', 'train', 'val', 'trainval'] or self.split in self.train_split_zeroshot) else filepath%'test'
         if osp.exists(filepath):
             features_mem = np.memmap(filepath, dtype='float32', mode='r')
-            features = np.array(features_mem.reshape(features_mem.shape[0]/1024, 1024))
+            features = np.array(features_mem.reshape(int(features_mem.shape[0]/1024), 1024))
             del features_mem
         else:
             print('No appearance features loaded for image {}'.format(im_id))

@@ -1,7 +1,7 @@
 from __future__ import division
 import torch.nn as nn
-from spatial_layers import CroppedBoxCoordinates
-from misc_layers import Proj_1Unit, Proj_2Unit, Gated_Embedding_Unit 
+from networks.spatial_layers import CroppedBoxCoordinates
+from networks.misc_layers import Proj_1Unit, Proj_2Unit, Gated_Embedding_Unit 
 import torch
 import torch.nn.functional as F
 

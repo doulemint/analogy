@@ -329,7 +329,7 @@ class Net(nn.Module):
                 self.activated_grams[gram] = 1
 
         if np.array(self.activated_grams.values()).sum() == 0:
-            print 'Attention we need to activated at least 1 branch of the network'
+            print ('Attention we need to activated at least 1 branch of the network')
 
     def adjust_learning_rate(self, opt, epoch):
         """Sets the learning rate to the initial LR
@@ -344,7 +344,7 @@ class Net(nn.Module):
         elif self.optim_name == 'sgd':
             self.optimizer = optim.SGD(self.params, lr=self.learning_rate, momentum=self.momentum, weight_decay=self.weight_decay)
         else:
-            print 'Choose optimizer'
+            print ('Choose optimizer')
 
 
     def get_statistics(self, scores, labels):
@@ -431,7 +431,7 @@ class Net(nn.Module):
                                                  normalize=normalize, \
                                                  num_layers=self.num_layers)
         else:
-            print 'Module %s does not exist. Check existing modules or implement it.' % module_name
+            print ('Module %s does not exist. Check existing modules or implement it.' % module_name)
 
         return module
 
