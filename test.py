@@ -13,7 +13,7 @@ import time
 from utils import Parser
 import argparse
 import os.path as osp
-import cPickle as pickle
+import pickle
 from datasets.hico_api import Hico
 from datasets.BaseLoader import TestSampler
 from networks import models
@@ -127,10 +127,10 @@ def get_detections(loader, triplet_queries):
 
                 # Scores
                 scores_gram = {}
-                scores_gram['s'] = scores['s'][idx, query_sub_cat].data
-                scores_gram['r'] = scores['r'][idx, query_rel_cat].data
-                scores_gram['o'] = scores['o'][idx, query_obj_cat].data
-                scores_gram['sro'] = scores_sro[idx, triplet_id].data
+                scores_gram['s'] = scores['s'][idx, query_sub_cat].data[0]
+                scores_gram['r'] = scores['r'][idx, query_rel_cat].data[0]
+                scores_gram['o'] = scores['o'][idx, query_obj_cat].data[0]
+                scores_gram['sro'] = scores_sro[idx, triplet_id].data[0]
 
 
                 for key in keys:
@@ -217,18 +217,19 @@ opt = parser.get_opts_from_dset(opt, dset) # additional opts from dset
 
 # Model
 model = models.get_model(opt)
+model = nn.DataParallel(model).cuda()
+checkpoint = torch.load(osp.join(logger_path, 'model_' + opt.epoch_model + '.pth.tar')) #.module.state_dict()
 
-checkpoint = torch.load(osp.join(logger_path, 'model_' + opt.epoch_model + '.pth.tar'))
-model.load_state_dict(checkpoint['model'])
+# for k,v in checkpoint.items():
+#     print(k)
+
+# print("*****************************************")
+
+model.load_state_dict(checkpoint['model'],False)
+if isinstance(model,torch.nn.DataParallel):
+		model = model.module
 model.eval()
 
-# Multiple gpus
-if torch.cuda.device_count() > 1:
-    print("Let's use", torch.cuda.device_count(), "GPUs!")
-    model = nn.DataParallel(model)
-
-if torch.cuda.is_available():
-    model.cuda()
 
 ######################
 """ Query triplets """
@@ -258,55 +259,5 @@ queries_sro, triplet_queries_idx = model.precomp_target_queries(triplet_queries)
 # Pre-compute language features in joint sro space
 print('Precomputing query features in joint space with analogy...')
 lang_feats_precomp_sro = model.get_language_features_analogy(queries_sro)
-
-
-
-##########################################
-""" Get detections for target triplets """
-##########################################
-
-
-""" Get images of interest """
-images = np.array(dset.image_ids, dtype=int)
-
-
-""" Get keys of interest """
-keys = opt.mixture_keys.split('_') if opt.mixture_keys else ['s-r-o-sro','s-sro-o','s-r-o']
-
-
-""" Get all detections for the target triplets """
-all_detections = get_detections(loader, triplet_queries)
-
-
-# We save in separate .mat files 
-det_path = osp.join(save_dir,'detections_{}_{}_{}_{}_{}.mat'.format(opt.cand_test,\
-                                                        opt.test_split,\
-                                                        opt.epoch_model,\
-                                                        '%s',\
-                                                        '%s'))
-
-
-for _,target_triplet in enumerate(triplet_queries):
-
-    for key in keys:
-
-        detections_aggregsource = all_detections[target_triplet][key]
-
-        if opt.use_objscoreprecomp:
-            keyname = key+'-objscoreprecomp'
-            det_file = det_path %(target_triplet, keyname)
-        else:
-            det_file = det_path %(target_triplet, key)
-
-
-        # Sort by image for eval code in matlab -> specific format
-        detections = {}
-        detections['all_boxes'] = []
-
-        for im_id in images:
-            detections['all_boxes'].append(detections_aggregsource[im_id]) 
-
-        # For speed-up: only save detection of the target triplet
-        sio.savemat(det_file, {'all_boxes':detections['all_boxes']})
 
 

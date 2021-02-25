@@ -293,7 +293,7 @@ class Net(nn.Module):
                         query_source        = self.queries_unigrams(word_source, gram)
                         embedding_source    = self.language_nets[self.gram_id[gram]](query_source)
 
-                        self.sim_precomp[gram][v_target, v_source] = torch.mul(embedding_target, embedding_source).sum().data[0]
+                        self.sim_precomp[gram][v_target, v_source] = torch.mul(embedding_target, embedding_source).sum().data
 
 
         elif self.sim_method == 'emb_word2vec':

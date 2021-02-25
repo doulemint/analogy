@@ -126,7 +126,8 @@ class Hico(BaseDataset):
 
         # Vocab wrapper (use POS tag as can have homonyms verb/noun)
         self.vocab = self.build_vocab(self.classes, self.predicates)
-        #pickle.dump(self.vocab.idx2word.values(), open(osp.join(self.data_dir, 'vocab' + '.pkl'), 'wb')) 
+        with open(osp.join(self.data_dir, 'vocab' + '.pkl'), 'wb') as f:
+            pickle.dump(self.vocab.idx2word.values(), f) 
 
 
         self.vocab_grams = {'s':self.classes,
