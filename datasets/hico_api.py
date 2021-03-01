@@ -72,7 +72,9 @@ class Hico(BaseDataset):
         print('Building database from GT annotations...')
 
         if split in self.train_split_zeroshot:
-            self.db = pickle.load(open(osp.join(self.data_dir, 'db_' + split.split('_')[0] + '.pkl'),'rb')) 
+            with(open(osp.join(self.data_dir, 'db_' + split.split('_')[0] + '.pkl'),'rb')) as f: 
+                  self.db = pickle.load(f,encoding="bytes")
+            #self.db = pickle.load(open(osp.join(self.data_dir, 'db_' + split.split('_')[0] + '.pkl'),'rb')) 
         else:
 
             if osp.exists(osp.join(self.data_dir, 'db_' + self.split + '.pkl')):
@@ -111,8 +113,12 @@ class Hico(BaseDataset):
         if train_mode:
             if osp.exists(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl')):
 
-                self.cand_positives = pickle.load(open(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl'),'rb'))
-                self.cand_negatives = pickle.load(open(osp.join(self.data_dir, 'cand_negatives_' + split + '.pkl'),'rb'))
+                with(open(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl'),'rb')) as f: 
+                  self.cand_positives = pickle.load(f,encoding="bytes")
+                with(open(osp.join(self.data_dir, 'cand_negatives_' + split + '.pkl'),'rb')) as f: 
+                  self.cand_positives = pickle.load(f,encoding="bytes")
+                # self.cand_positives = pickle.load(open(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl'),'rb'))
+                # self.cand_negatives = pickle.load(open(osp.join(self.data_dir, 'cand_negatives_' + split + '.pkl'),'rb'))
 
             else:
                 self.cand_positives, self.cand_negatives = self.get_training_candidates(use_gt=self.use_gt, add_gt=self.add_gt, thresh_file=self.thresh_file)

@@ -217,15 +217,13 @@ opt = parser.get_opts_from_dset(opt, dset) # additional opts from dset
 
 # Model
 model = models.get_model(opt)
-
+model = nn.DataParallel(model).cuda()
 checkpoint = torch.load(osp.join(logger_path, 'model_' + opt.epoch_model + '.pth.tar'))
-model.load_state_dict(checkpoint['model'])
+model.load_state_dict(checkpoint['model']，False)
 model.eval()
 
-# Multiple gpus
-if torch.cuda.device_count() > 1:
-    print("Let's use", torch.cuda.device_count(), "GPUs!")
-    model = nn.DataParallel(model)
+if isinstance(model,torch.nn.DataParallel):
+		model = model.module
 
 if torch.cuda.is_available():
     model.cuda()

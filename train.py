@@ -239,7 +239,7 @@ logger_path = osp.join(opt.logger_dir, opt.exp_name)
 
 
 if osp.exists(logger_path):
-    answer = raw_input("Experiment directory %s already exists. Continue: yes/no?" %logger_path)
+    answer = input("Experiment directory %s already exists. Continue: yes/no?" %logger_path)
     assert answer=='yes', 'Please speficy another experiment directory with exp_name option'
 
 
