@@ -3,7 +3,7 @@ Gather results evaluation HICO-DET
 """
 
 from __future__ import division
-import __init__
+import _init_
 import os
 import pickle
 import os.path as osp

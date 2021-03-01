@@ -3,7 +3,7 @@ Utils for evaluation on HICO-DET. This script helps you gather and group the res
 """
 
 from __future__ import division
-import __init__
+import _init_
 import os
 import os.path as osp
 import torch

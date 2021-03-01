@@ -1,6 +1,6 @@
 from __future__ import division
 import os
-import __init__
+import _init_
 import numpy as np
 import os.path as osp
 from datasets.vrd_api import Vrd

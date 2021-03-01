@@ -7,7 +7,7 @@ The way we have implemented this :
 This script allows you to build the database object and create a file "proposals.pkl" that you can use as candidate proposals
 """
 
-import __init__
+import _init_
 import numpy as np
 import cPickle as pickle
 import os.path as osp
