@@ -340,6 +340,7 @@ opt = parser.get_opts_from_dset(opt, dset) # additional options from dataset
 
 # Define model
 model = models.get_model(opt)
+model = nn.DataParallel(model).cuda()
 
 if torch.cuda.is_available():
     model.cuda()
@@ -358,7 +359,8 @@ if opt.pretrained_model:
 ################
 
 model.eval()
-
+if isinstance(model,torch.nn.DataParallel):
+		model = model.module
 if opt.use_analogy:
     
     model.precomp_language_features() # pre-compute unigram emb

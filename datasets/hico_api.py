@@ -116,7 +116,7 @@ class Hico(BaseDataset):
                 with(open(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl'),'rb')) as f: 
                   self.cand_positives = pickle.load(f,encoding="bytes")
                 with(open(osp.join(self.data_dir, 'cand_negatives_' + split + '.pkl'),'rb')) as f: 
-                  self.cand_positives = pickle.load(f,encoding="bytes")
+                  self.cand_negatives = pickle.load(f,encoding="bytes")
                 # self.cand_positives = pickle.load(open(osp.join(self.data_dir, 'cand_positives_' + split + '.pkl'),'rb'))
                 # self.cand_negatives = pickle.load(open(osp.join(self.data_dir, 'cand_negatives_' + split + '.pkl'),'rb'))
 
